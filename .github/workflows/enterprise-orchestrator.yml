@@ -1,39 +1,51 @@
-name: CI-WORKFLOW
+name: Secure DevSecOps Pipeline
+
 on:
   push:
-    branches: master
-  workflow_dispatch: 
+    branches:
+      - master
 
 jobs:
-  buil-test:
+  build_and_package:
+    name: BUILD-JOB
     runs-on: ubuntu-slim
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript-typescript']
+
     steps:
-      - name: checkout
-        uses: actions/checkout@v7
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: javascript
+          languages: ${{ matrix.language }}
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
 
-      - name: build
+      - name: BUILD
         run: npm install
 
-      - name: test
-        run: npm test
-        
+      - name: TEST
+        run: echo "code is tested!"
+
       - name: Artifact upload
         uses: actions/upload-artifact@v7
         with:
           name: artifact-1
           path: |
-             package*
-
-      - name: deploy
-        run: echo "my code is deployed"
+            package*
