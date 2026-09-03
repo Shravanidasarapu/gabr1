@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - master
-
-  workflow_dispatch:    
+  workflow_dispatch:
 
 jobs:
   build_and_package:
@@ -20,34 +19,35 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript-typescript']
+        language:
+          - javascript-typescript
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - name: Cache Dependencies
+        uses: actions/cache@v4
         with:
-          languages: ${{ matrix.language }}
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
+      - name: Install Dependencies
+        run: npm ci
 
       - name: BUILD
-        run: npm install
+        run: npm run build
 
       - name: TEST
-        run: echo "code is tested!"
+        run: npm test
 
       - name: Artifact upload
         uses: actions/upload-artifact@v7
         with:
           name: artifact-1
           path: |
-            package*
+            package.json
+            package-lock.json
+            dist/
