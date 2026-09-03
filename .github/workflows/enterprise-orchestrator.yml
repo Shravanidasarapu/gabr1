@@ -47,3 +47,11 @@ jobs:
             package.json
             package-lock.json
             dist/
+
+      - name: deploy
+        if: success()
+        run: echo "my code is deployed"
+
+      - name: rollback
+        if: failure()
+        run: echo "rollback is done"
