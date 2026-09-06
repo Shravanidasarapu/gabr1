@@ -1,0 +1,67 @@
+name: input
+
+on:
+  push:
+    branches: ["master", "main", "dev"]
+
+  workflow_dispatch:
+    inputs:
+      username:
+        description: "Enter your username"
+        required: true
+        default: "Ankitha"
+        type: string
+
+      environment:
+        description: "Select deployment environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: npm install
+
+      - name: Show Username
+        run: 'echo "Username: ${{ inputs.username }}"'
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test
+        run: echo "Code is tested"
+
+      - name: Show Environment
+        run: 'echo "Environment: ${{ inputs.environment }}"'
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - test
+
+    steps:
+      - name: Deploy
+        run: echo "My code is deployed"
+
+      - name: Show Details
+        run: |
+          echo "Username: ${{ inputs.username }}"
+          echo "Environment: ${{ inputs.environment }}"
