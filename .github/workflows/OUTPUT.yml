@@ -9,7 +9,7 @@ on:
       username:
         description: "Enter your username"
         required: true
-        default: "Ankitha"
+        default: "Shravani"
         type: string
 
       environment:
